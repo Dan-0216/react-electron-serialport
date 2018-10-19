@@ -1,0 +1,20 @@
+.ant-layout-sider-children .logo{
+    background: black;
+}
+.ant-layout-sider-children .logo img{
+    display: block;
+    width: 70%;
+    height: 70%;
+    margin: 10px auto;  
+}
+.ant-layout.ant-layout-has-sider{
+height: 100vh;
+}
+/* 覆盖样式 */
+.ant-menu.ant-menu-dark .ant-menu-item-selected, .ant-menu-submenu-popup.ant-menu-dark .ant-menu-item-selected{
+    background-color: #f17d1a;
+}
+
+.ant-layout.ant-layout-has-sider > .ant-layout{
+    min-width: 500px;
+}

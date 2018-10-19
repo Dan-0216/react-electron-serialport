@@ -1,0 +1,11 @@
+ip_content{
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+}
+.ip_content .iptable{
+    background: #ffffff;
+}
+.ip_option button{
+    margin: 10px;
+}

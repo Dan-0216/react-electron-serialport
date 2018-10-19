@@ -1,0 +1,25 @@
+.ant-layout-header .trunk_title{
+    padding: 16px 32px 0;
+    font-weight: 500;
+    color: rgba(0,0,0,.85);
+    background: #ffffff;
+    font-size: 20px;
+}
+.trunk_content,.ip_content{
+    /* display: flex; */
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 6px;
+}
+.trunk_option button{
+    /* display: block; */
+    margin: 10px;
+}
+.trunk_content .table_wrapper{
+    background: #ffffff;
+}
+
+/* .trunk_content .trunk_option{
+    width: 100px;
+    margin-left: 20px;
+} */

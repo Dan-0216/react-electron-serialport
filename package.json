@@ -1,0 +1,66 @@
+{
+  "name": "electron-serialport",
+  "version": "1.0.1",
+  "description": "A minimal Electron application with node serialport",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "install": "electron-rebuild",
+    "dev": "./node_modules/.bin/webpack-dev-server --content-base dist",
+    "e-start": "webpack && npm start",
+    "watch": "webpack --progress --colors --watch",
+    "package": "electron-packager . Quicktron --platform=win32 --arch=x64 --out=./OutApp --overwrite --icon=quicktron_new.ico  ",
+    "package-w": "electron-packager . Quicktron --platform=win32 --arch=x64 --out=./OutApp --overwrite --icon=quicktron.ico --ignore=\"(package-lock.json|.gitignore|LICENSE|README.md|webpack.config.js|node_modules|mymodules|OutApp|util|copy|src)\" --ignore=OutApp --prune=true",
+    "package-t": "electron-packager . Quicktron --platform=win32 --arch=x64 --out=./OutApp --overwrite --icon=quicktron_256.ico --ignore=\"(package-lock.json|.gitignore|LICENSE|README.md|webpack.config.js|node_modules|mymodules|OutApp|util|copy|src)\" --ignore=OutApp --prune=true",
+    "asar": "asar pack ./OutApp/Quicktron-win32-x64/resources/app ./OutApp/Quicktron-win32-x64/resources/app.asar "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:johnny-five-io/electron-serialport.git"
+  },
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "GitHub",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-1": "^6.24.1",
+    "electron": "^1.4.1",
+    "electron-rebuild": "^1.4.0",
+    "file-loader": "^1.1.11",
+    "node-loader": "^0.6.0",
+    "url-loader": "^1.0.1",
+    "webpack": "^4.16.0",
+    "webpack-command": "^0.4.1"
+  },
+  "dependencies": {
+    "antd": "^3.7.0",
+    "arraybuffer-to-string": "^1.0.2",
+    "bindings": "^1.3.0",
+    "browser-serialport": "^2.1.0",
+    "css-loader": "^1.0.0",
+    "data-table": "^2.0.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-redux": "^5.0.7",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
+    "redux": "^4.0.0",
+    "redux-thunk": "^2.3.0",
+    "serialport": "^4.0.7",
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
+    "style-loader": "^0.21.0",
+    "uws": "^10.148.1",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.4"
+  }
+}
