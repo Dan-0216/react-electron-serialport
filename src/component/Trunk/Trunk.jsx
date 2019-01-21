@@ -6,11 +6,12 @@ import {
     Button,
     Table,
     Modal,
-    Form,
+    Form
 } from 'antd';
 import './Trunk.css'
 import { add,remove,setWeight,setIp,deleteWeight,deleteIp} from '../../redux/serialport/action.js'
 import { addData,removeData,chectStatus,judgeOnline,selectTrunk} from '../../../util/access.js';
+import { getNowFormatDate } from '../../../util/time.js'
 import {IpContrast} from '../../../util/ip.js';
 import { list ,newSP ,closeTrunk,send} from '../../service/trunk.js';
 import { ConnectNet } from '../../service/net.js';
@@ -18,10 +19,12 @@ import {ConnectSocket,emit} from '../../service/socket.js';
 const FormItem = Form.Item;
 const Option = Select.Option;
 const ERR_CODE ='ErrorParcelCode'
-const timerMap = {};
+let timerMap = {};
+let codeTimerMap = {}
 // let timerArr=[];
 const MIN_WEIGHT=0.01;
 const Belt_Order="$go#";
+let CodeCount = 0;
 class Trunk extends Component {
     constructor(props){
         super(props)
@@ -32,7 +35,9 @@ class Trunk extends Component {
             trunkMsg:[],
             port1:{},
             protInstance:[],
-            trunk_data:[]
+            trunk_data:[],
+            value:"",
+            logFlag:false
          }
          this.test=[];
     }   
@@ -110,7 +115,7 @@ class Trunk extends Component {
               if(timerMap[name] && timerMap[name].length>0){
                 timerMap[name].forEach(v=>clearTimeout(v))
                 timerMap[name]=[];
-                console.log(name, "无称重信息 清除延迟计时器队列")
+                // console.log(name, "无称重信息 清除延迟计时器队列")
               }
             }
         }
@@ -124,7 +129,7 @@ class Trunk extends Component {
             if(mydata!=false){
               let arr= mydata.split(':')
               let receiveIp =arr[0];
-              let code =arr[1].replace("+","");
+              let code =arr[1].replace(/\+/g,'');
             if(( ip[receiveIp] && ip[receiveIp]!==code) || !ip[receiveIp] ){
                    dispatch(setIp(receiveIp,code));
             }
@@ -135,15 +140,16 @@ class Trunk extends Component {
 
     // 设置计时器的发送逻辑
     setTimerSend=(name,data)=>{
+        let _this= this;
         const {serialport:{portInter},dispatch}=this.props;
         const station_ip =  portInter[name].ip;
         let msg={message:`${station_ip}:${ERR_CODE}+${data}`}
-
+        
         let a = setTimeout(()=>{
                 emit("mockscan",msg)
                 dispatch(deleteWeight(name));
-                console.log("条码异常====>>>",msg);
-        },3000);
+         _this.state.logFlag && console.log(`条码异常${getNowFormatDate()}`,msg);
+        },1000);
         if(!timerMap[name]){
             timerMap[name]=[];
         }
@@ -162,16 +168,63 @@ class Trunk extends Component {
         }
         if(weight[comName]){
             let msg={message:`${receiveIp}:${code}+${weight[comName]}`}
-            console.log("正常发送条码===>>>>",msg)
             emit("mockscan",msg)
-
+            this.state.logFlag && console.log(`正常发送条码${getNowFormatDate()}`,msg)
+            // 清除异常条码计时器
             if(timerMap[comName] && timerMap[comName].length>0){
                 timerMap[comName].forEach(v=>clearTimeout(v))
                 timerMap[comName]=[];
-              }
+            }
+
+            // 清除有条码无称重计时器
+            if(codeTimerMap[receiveIp] && codeTimerMap[receiveIp].length>0){
+                codeTimerMap[receiveIp].forEach(i=>clearTimeout(i))
+                // timerMap[comName]=[];
+                codeTimerMap[receiveIp]=[]
+            }
 
             dispatch(deleteWeight(comName));
+
+        }else{
+            
+            /**
+             * @date 2019/1/1
+             * @author zhangshuaidan
+             * 修复有条码无称重，添加默认称重信息
+             */
+
+            // message: "192.168.1.121:9708186019700+0.05"
+
+            // if(CodeCount>2){
+            //     let msg={message:`${receiveIp}:${code}+0.02`}
+            //     this.state.logFlag && console.log(`正常发送条码${getNowFormatDate()}`,msg)
+            //    setTimeout(()=>{
+            //      emit("mockscan",msg)
+            //    },1000)    
+            //   CodeCount= 0;
+
+            // }else{
+            //     CodeCount++;
+            // }
+            
+
+            let msg={message:`${receiveIp}:${code}+0.02`}
+            //重写 有条码无称重发送
+            let timer = setTimeout(()=>{
+              emit("mockscan",msg)
+              this.state.logFlag && console.log(`正常发送条码${getNowFormatDate()}`,msg)
+            },1000)
+
+            if(!Array.isArray(codeTimerMap[receiveIp])){
+                codeTimerMap[receiveIp]=[]
+            }
+
+            codeTimerMap[receiveIp].push(timer)
+            // 
+            
+
         }
+
     }
 
 
@@ -213,7 +266,7 @@ class Trunk extends Component {
     renderLocalPort=()=>{
        const {serialport:{portInter}} = this.props;
        let localArr=judgeOnline(this.state.trunk_data) 
-       console.log("localArr===>>>",localArr);
+    //    console.log("localArr===>>>",localArr);
         localArr.map(v=>{
             if(!(portInter[v.trunk_id] && typeof portInter[v.trunk_id] == 'object') ){
                 this.InitPort(v.trunk_id,v.type,v.agvStation_ip);
@@ -231,29 +284,101 @@ class Trunk extends Component {
             comName=i;
         }
     }
-    console.log("串口信息发送===>>>",comName);
+
+     this.state.logFlag && console.log(`串口信息发送${getNowFormatDate()}`,comName);
+
     // 给串口发信息
     send(comName,Belt_Order)
+
+    /**
+     * 下发皮带滚动并清除延迟计时器队列
+     */
+
+    // let comName_weight;
+    // for (let i in portInter){
+    //     if(portInter[i].ip === ip && portInter[i].type == "weight"){
+    //         comName_weight = i;
+    //     }
+    // }
+
+    // if(timerMap[comName_weight] && timerMap[comName_weight].length>0){
+    //     timerMap[comName_weight].forEach(v=>clearTimeout(v))
+    //     timerMap[comName_weight]=[];
+    // }
+    
+    
     }
     
     // 皮带A模拟滚动
     goToA(){
-        send('COM1',Belt_Order);
+        // setInterval(()=>{
+         
+        // },2000);
+        send('COM2',Belt_Order);
+       
     }
 
     // 皮带B模拟滚动
     goToB(){
-        send('COM3',Belt_Order);
+        send('COM4',Belt_Order);
     }
 
     // 模拟sock发送
-    mockSend(){
-        let msg={message:`1445414:221324388148+2.25`}
+    mockSend=()=>{
+        let msg={message:`${this.state.value}:ErrorParcelCode+2.25`}
+        emit("mockscan",msg)
+    }
+    // 模拟sock发送
+    mockSendNormal=()=>{
+        let msg={message:`${this.state.value}:1446789654123+2.25`}
         emit("mockscan",msg)
     }
 
+    // 模拟任务发送1
+    mockTask1(){
+     const data ={
+        driveUnit: {},
+        driveUnitID: "AGV1",
+        order: 2,
+        parcels: [],
+        scanDeviceIP: "169.254.7.120",
+        state: "",
+        stationID: 1,
+        taskID: "task1",
+        taskType: "SMALL",
+        }
+        emit('task',data)
+    }
+    // 模拟任务发送2
+    mockTask2(){
+    const data = {
+        driveUnit: {},
+        driveUnitID: "AGV2",
+        order: 1,
+        parcels: [],
+        scanDeviceIP: "169.254.6.184",
+        state: "",
+        stationID: 1,
+        taskID: "task2",
+        taskType: "SMALL",
+        }
+        emit('task',data)
+    }
+    
+    // 日志打印开关
+    toggleLog=()=>{
+        this.setState({
+            logFlag:!this.state.logFlag
+        })
+    }
 
     componentDidMount(){
+
+        // console.log('当前时间',getNowFormatDate())
+                
+        // 连接WeBSocket
+        ConnectSocket(this.receiveSocketData);
+
         const _this=this
 
         // 获取当前的串口列表
@@ -278,9 +403,13 @@ class Trunk extends Component {
         
         // 连接HTTP
         ConnectNet(this.receiveNetData())
-        
-        // 连接WeBSocket
-        ConnectSocket(this.receiveSocketData);
+
+    }
+
+    handleChange=(e)=>{
+        this.setState({
+            value:e.target.value
+        })
     }
 
     render() {   
@@ -294,7 +423,7 @@ class Trunk extends Component {
                 dataIndex: 'trunk_id',
                 key: 'trunk_id'
             }, {
-                title: 'AGV停靠点IP',
+                title: '供包台标识',
                 dataIndex: 'agvStation_ip',
                 key: 'agvStation_ip'
             },{
@@ -328,10 +457,18 @@ class Trunk extends Component {
                       {/* {/* <Button type="primary" onClick={this.mockScan1}>模拟包裹1扫描</Button> */}
                       {/* <Button type="primary" onClick={this.TestTrunk}>模拟串口发送</Button>
                       <Button type="primary" onClick={this.clearTimerSend}>模拟条码发送</Button> */}
-               
-                      <Button type="primary" onClick={this.mockSend}>模拟串口信息发送</Button>
+
+                     {/* <Input addonBefore="目标地址"  value={this.state.value}  onChange={this.handleChange}/>
+
+                      <Button type="primary" onClick={this.mockSend}>模拟异常发送</Button>
+                      <Button type="primary" onClick={this.mockSendNormal}>模拟正常发送</Button>
+
+                      <Button type="primary" onClick={this.mockTask1}>模拟任务发送1</Button>
+                      <Button type="primary" onClick={this.mockTask2}>模拟任务发送2</Button>         */}
+
                       <Button type="primary" onClick={this.goToA}>皮带A滚动模拟</Button>
                       <Button type="primary" onClick={this.goToB}>皮带B滚动模拟</Button>
+                      <Button type="primary" onClick={this.toggleLog}>{this.state.logFlag ? '关闭日志' : '开启日志'}</Button>
                 
                     </div>
                     <div className="table_wrapper">
@@ -349,9 +486,9 @@ class Trunk extends Component {
                 >
                     <div>
                     <Form layout="vertical">
-                            <FormItem label="AGV停靠点IP">
+                            <FormItem label="供包台标识">
                                 {getFieldDecorator('agvStation_ip', {
-                                    rules: [{ required: true, message: '请输入AGV停靠点IP' }],
+                                    rules: [{ required: true, message: '请输入供包台标识' }],
                                 })(
                                     <Input />
                                 )}

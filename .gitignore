@@ -1,0 +1,8 @@
+# dependencies
+/node_modules
+
+# outApp
+/OutApp
+
+package-lock.json
+npm-debug.log*

@@ -1,6 +1,7 @@
 const serialport = global.require('serialport')
 const reg=/(wn)\d{4}\.\d{2}(kg)/g;
-
+import { getNowFormatDate } from '../../util/time.js'
+import { setTrunkRecord } from '../../util/util.js'
 export function list(){
     // 存取serialport 端口名
     return new Promise((resolve, reject) => {
@@ -57,14 +58,25 @@ const sendIn = (sp, msg, errFn) => {
             if (typeof errFn === 'function' ){
                 errFn(err);
             }
-           
             return console.log('Error on write: ', err.message);
         }
-        console.log('message written');
+        // console.log('message written');
     })
+    
+    sp.flush();
+    // sp.flush(function(err,results){
+    //     console.log('flush====>>>>>')
+    // });
+ 
 }
 
 export function send(id, msg) {
+    let obj ={
+        name:id,
+        time:getNowFormatDate()
+    }
+    setTrunkRecord(obj)
+
     const p = sp[id];
     if (p) {
         if(!p.isOpen()) {
@@ -76,6 +88,7 @@ export function send(id, msg) {
                 }
             })
         } else {
+
             sendIn(p, msg, p.errFn);
         }
     }

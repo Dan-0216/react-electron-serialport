@@ -8,6 +8,7 @@ server.listen(8081,function(){
 
 export function ConnectSocket(dataFn){
     io.on('connection', function (socket) { 
+        socket.removeAllListeners()
         console.log("连接成功")
         socket.on('data',(data)=>{
             console.log("socket___ data===>>>>",data)

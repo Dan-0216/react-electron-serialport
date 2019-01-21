@@ -6,7 +6,7 @@
 
 //  获取 localStorage
 function getItem(){
-  var obj=JSON.parse(localStorage.getItem('ip'));
+  var obj=JSON.parse(localStorage.getItem('ip')) || [];
   return obj
 }
 

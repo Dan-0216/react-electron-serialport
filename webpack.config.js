@@ -34,6 +34,7 @@ module:{
     target:'electron-renderer',
     externals: {
         serialport: "serialport",
-        bindings:"bindings"
+        bindings:"bindings",
+        uws:"uws"
     }
 };

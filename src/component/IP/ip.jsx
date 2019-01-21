@@ -53,22 +53,13 @@ class IpSetting extends Component {
     render() {
         const {data} =this.state
         const { getFieldDecorator } = this.props.form;
-        const dataSource = [{
-            key: '1',
-            scanIp: "192.123.123.13",
-            stationIp: "123"
-        }, {
-            key: '',
-            scanIp: "789.123.123",
-            stationIp: "123"
-        }];
 
         const columns = [{
             title: '扫描设备(相机)IP',
             dataIndex: 'scanIp',
             key: 'scanIp',
         }, {
-            title: 'AGV停靠点IP',
+            title: '供包台标识',
             dataIndex: 'stationIp',
             key: 'stationIp',
         }, {
@@ -108,9 +99,9 @@ class IpSetting extends Component {
                                 )}
                     </FormItem>
                 
-                    <FormItem label="AGV停靠点IP">
+                    <FormItem label="供包台标识">
                         {getFieldDecorator('stationIp', {
-                            rules: [{ required: true, message: '请输入AGV停靠点IP' }],
+                            rules: [{ required: true, message: '请输入供包台标识' }],
                                 })(
                                     <Input />
                                 )}

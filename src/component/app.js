@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import { Layout, Menu, Icon, message } from 'antd';
 import { Route,Link,Redirect} from 'react-router-dom'
 import Trunk from './Trunk/Trunk.jsx';

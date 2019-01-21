@@ -12,10 +12,12 @@ server2.listen(8089,function(){
 
 export function ConnectNet(callbackFn){
     server2.on('connection',function(socket){
+        socket.removeAllListeners()
         // console.log("厂商软件 连接成功")
         message.destroy()
         message.success('建立连接成功', 2.5)
         socket.on('data', (data)=> {
+            // console.log('data',data);
             const str = ab2str(data);
             const strs = str.split(ETX).map(s => s.replace(STX, ''));
             if(Array.isArray(strs)&&strs.length){
@@ -27,9 +29,18 @@ export function ConnectNet(callbackFn){
         })
 
         socket.on('close',(err)=>{
+            console.log('断开链接——————')
             message.loading('与扫码软件断开连接,请确认开启扫码软件', 0)
         })
+
+     
+
     })
+
+    server2.on('close',(err)=>{
+            console.log('链接断开')
+            message.loading('与扫码软件断开连接,请确认开启扫码软件', 0)
+        })
 
 }
 

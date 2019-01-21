@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 import thunk from 'redux-thunk';
 import { Provider} from 'react-redux'
 import RootComponent from './component/app.js';
-import {  HashRouter as Router, Route, Switch , hashHistory,Redirect } from 'react-router-dom';
+import {  HashRouter as Router, Route, Switch } from 'react-router-dom';
 import  reducer from './redux/serialport/reducer.js'
 import { createStore, applyMiddleware } from 'redux' 
 
