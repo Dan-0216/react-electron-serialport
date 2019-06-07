@@ -74,7 +74,7 @@ class RootComponent extends React.Component {
                             style={{
                             textAlign: 'center'
                         }}>
-                         版权所有 © 2018 上海快仓智能科技有限公司  
+                         版权所有 © 2018
                         </Footer>
                     </Layout>
                 </Layout>

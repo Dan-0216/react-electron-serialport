@@ -28,8 +28,7 @@ function createWindow () {
   mainWindow = new BrowserWindow(
     {
       width: 1200, 
-      height: 600,
-      icon:__dirname+'quicktron.ico'
+      height: 600
     })
 
      //系统托盘右键菜单
@@ -46,7 +45,6 @@ function createWindow () {
 
     //系统托盘图标目录
     trayIcon = path.join(__dirname);
-    appTray = new Tray(path.join(trayIcon, 'quicktron.ico'));
     //图标的上下文菜单
     const contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
     //设置此托盘图标的悬停提示内容

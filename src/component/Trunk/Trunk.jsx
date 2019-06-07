@@ -213,7 +213,7 @@ class Trunk extends Component {
             let timer = setTimeout(()=>{
               emit("mockscan",msg)
               this.state.logFlag && console.log(`正常发送条码${getNowFormatDate()}`,msg)
-            },1000)
+            },1800)
 
             if(!Array.isArray(codeTimerMap[receiveIp])){
                 codeTimerMap[receiveIp]=[]

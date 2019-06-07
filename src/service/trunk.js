@@ -1,5 +1,5 @@
 const serialport = global.require('serialport')
-const reg=/(wn)\d{4}\.\d{2}(kg)/g;
+const reg=/(wn)\d{4,}\.\d{2}(kg)/g;
 import { getNowFormatDate } from '../../util/time.js'
 import { setTrunkRecord } from '../../util/util.js'
 export function list(){
@@ -30,6 +30,7 @@ export function newSP(comName, dataFn, baudRate=115200, errFn = ()=> {}) {
     });
     let Str="";
     p.on('data', (data) => {
+      
         if (typeof dataFn === 'function') {
             Str+=data.toString();
             if(Str.match(reg)!==null){
